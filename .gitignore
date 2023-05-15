@@ -26,5 +26,9 @@ replay_pid*
 #Intellij Files
 .idea/
 
+#Target Files
+target/*
+
+
 #MAC files
 *.DS_STORE

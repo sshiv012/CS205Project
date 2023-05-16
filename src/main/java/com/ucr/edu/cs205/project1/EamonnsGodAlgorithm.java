@@ -4,9 +4,14 @@ package com.ucr.edu.cs205.project1;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * The main class implementing the 8 puzzle problem solving algorithm.
+ */
 public class EamonnsGodAlgorithm {
 
+    /**
+     * Enumeration representing the queue function for the search algorithm.
+     */
     public enum QueueFunction {UCS, AStarMisplaced, AStarManhattan}
 
     private static int boardEdge = 0;
@@ -14,7 +19,9 @@ public class EamonnsGodAlgorithm {
     private boolean isBacktrackingEnabled = false;
     private static final List<Integer> goalState = new ArrayList<>();
 
-
+    /**
+     * Class representing the cost of a node in the priority queue.
+     */
     private class NodeCost {
         float cost;
         Node node;
@@ -25,6 +32,12 @@ public class EamonnsGodAlgorithm {
         }
     }
 
+    /**
+     * Expands the given node by generating its child nodes based on valid moves.
+     *
+     * @param node The node to expand.
+     * @return The list of child nodes.
+     */
     public List<Node> expand(Node node) {
         List<Node> children = new ArrayList<>();
         int positionOfEmptyTile = node.getState().indexOf(0);
@@ -49,10 +62,19 @@ public class EamonnsGodAlgorithm {
 
         return children;
     }
-
+    /**
+     * Performs the ultimate search algorithm given by Dr.Eamonn Keogh to solve the 8 puzzle problem.
+     *
+     * @param initialState  The initial state of the puzzle.
+     * @param queueFunction The queue function for the search algorithm.
+     */
     public void ultimateSearch(Node initialState, QueueFunction queueFunction) {
         int noOfExpandedNodes = 0;
         int maxQSize = 0;
+
+        int localExpandedNodes=0;
+        int localDepth=0;
+        Map<Integer, Integer> localExpandedNodesMap = new HashMap<>();
         if (isGoalState(initialState)) {
             System.out.println("The puzzle is already solved");
             return;
@@ -62,12 +84,19 @@ public class EamonnsGodAlgorithm {
         Map<String, Boolean> visited = new HashMap<>();
         nodes.add(new NodeCost(Float.POSITIVE_INFINITY, initialState));
         while (true) {
+
             if (nodes.isEmpty()) {
                 System.out.println("No Solution found after expanding " + noOfExpandedNodes + " with Queue Size " + maxQSize);
                 return;
             }
             maxQSize = Math.max(maxQSize, nodes.size());
             NodeCost nodeCost = nodes.poll();
+            if(nodeCost.node.getDepth()!=localDepth)
+            {
+                localExpandedNodesMap.put(localDepth, localExpandedNodesMap.getOrDefault(localDepth,0)+localExpandedNodes);
+                localDepth=nodeCost.node.getDepth();
+                localExpandedNodes=0;
+            }
 
             if (isBacktrackingEnabled) {
                 if (queueFunction.equals(QueueFunction.UCS)) {
@@ -84,9 +113,14 @@ public class EamonnsGodAlgorithm {
             }
 
             if (isGoalState(nodeCost.node)) {
+                System.out.println();
+                if(isBacktrackingEnabled)
+                    System.out.println("Depth = No. of nodes expanded at given depth\n"+localExpandedNodesMap);
+                System.out.println();
                 System.out.println("Solution depth was " + nodeCost.node.getDepth() +
                         "\nNumber of nodes expanded: " + noOfExpandedNodes +
                         "\nMax Queue Size: " + maxQSize);
+                System.out.println();
 
                 Node test = nodeCost.node;
                 while (test != null && isBacktrackingEnabled) {
@@ -114,22 +148,41 @@ public class EamonnsGodAlgorithm {
                 }
             }
             noOfExpandedNodes += 1;
+            localExpandedNodes+=1;
         }
 
 
     }
 
+    /**
+     * Converts a list of integers to a string representation.
+     *
+     * @param intList The list of integers.
+     * @return The string representation.
+     */
     public static String getListOfNumbersAsString(List<Integer> intList) {
         if (intList == null || intList.isEmpty())
             return "";
         return intList.stream().map(String::valueOf).collect(Collectors.joining());
     }
 
+    /**
+     * Checks if a given number is a perfect square.
+     *
+     * @param number The number to check.
+     * @return True if the number is a perfect square, false otherwise.
+     */
     public static boolean checkPerfectSquare(double number) {
         double sqrt = Math.sqrt(number);
         return ((sqrt - Math.floor(sqrt)) == 0);
     }
 
+    /**
+     * Calculates the count of misplaced tiles in the puzzle state.
+     *
+     * @param gameState The state of the puzzle.
+     * @return The count of misplaced tiles.
+     */
     public int calculateMisplacedTilesCount(List<Integer> gameState) {
         int misplacedCount = 0;
         for (int i = 0; i < boardSize; i++) {
@@ -143,6 +196,12 @@ public class EamonnsGodAlgorithm {
         return misplacedCount;
     }
 
+    /**
+     * Calculates the total Manhattan distance of tiles in the puzzle state.
+     *
+     * @param gameState The state of the puzzle.
+     * @return The total Manhattan distance.
+     */
     public int calculateTotalManhattanDistance(List<Integer> gameState) {
         int totalDistance = 0;
         for (int i = 1; i < boardSize; i++) {
@@ -163,16 +222,30 @@ public class EamonnsGodAlgorithm {
         return totalDistance;
     }
 
+    /**
+     * Checks if the given state is the goal state.
+     *
+     * @param currState The current state of the puzzle.
+     * @return True if the state is the goal state, false otherwise.
+     */
     public Boolean isGoalState(Node currState) {
         return goalState.equals(currState.getState());
     }
 
+    /**
+     * Generates the goal state of the puzzle.
+     */
     public void generateGoalState() {
         for (int i = 1; i < boardSize; i++)
             goalState.add(i);
         goalState.add(0);
     }
 
+    /**
+     * The main method/entrypoint to run the 8 puzzle problem solver.
+     *
+     * @param args The command line arguments.
+     */
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("Welcome to an 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own");

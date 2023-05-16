@@ -1,6 +1,7 @@
 package com.ucr.edu.cs205.project1;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Node{
         private int boardSize;

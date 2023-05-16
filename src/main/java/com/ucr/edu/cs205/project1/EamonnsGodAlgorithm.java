@@ -1,5 +1,6 @@
 package com.ucr.edu.cs205.project1;
 
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,13 +71,23 @@ public class EamonnsGodAlgorithm {
             }
             maxQSize = Math.max(maxQSize, nodes.size());
             NodeCost nodeCost = nodes.poll();
-            /*
-            if (queueFunction.equals(queueFunction.UCS)) {
-                System.out.println("The best state to expand with a g(n) = "+ nodeCost.node.getDepth()+" and h(n) = "+ 0);
-            } else
-                System.out.println("The best state to expand with a g(n) = "+ nodeCost.node.getDepth()+" and h(n) = "+ nodeCost.cost);
-            System.out.println(nodeCost.cost+ " "+nodeCost.node.getState().toString());
-              */
+
+            if(isBacktrackingEnabled) {
+                if (queueFunction.equals(queueFunction.UCS)) {
+                    System.out.println("The best state to expand with a g(n) = " + nodeCost.node.getDepth() + " and h(n) = " + 0+ " is .... ");
+                } else
+                    System.out.println("The best state to expand with a g(n) = " + nodeCost.node.getDepth() + " and h(n) = " + nodeCost.cost+ " is ....");
+                System.out.println(nodeCost.cost + " " + nodeCost.node.getState().toString());
+                System.out.println("Depth: "+nodeCost.node.getDepth()+ " Node Cost: "+ nodeCost.cost);
+                for(int i=0;i<boardSize;i++)
+                {
+                    if(i!=0 && i%(boardEdge)==0)
+                        System.out.println("");
+                    System.out.print(nodeCost.node.getState().get(i)+" ");
+                }
+                System.out.println("");
+            }
+
             if(isGoalState(nodeCost.node)) {
                 System.out.println("Solution depth was "+ nodeCost.node.getDepth()+
                         "\nNumber of nodes expanded: " + noOfExpandedNodes +

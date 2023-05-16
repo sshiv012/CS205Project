@@ -55,12 +55,7 @@ public class EamonnsGodAlgorithm {
             System.out.println("The puzzle is already solved");
             return;
         }
-        Comparator<NodeCost> comparator = new Comparator<NodeCost>() {
-            @Override
-            public int compare(NodeCost o1, NodeCost o2) {
-                return Float.compare(o1.cost,o2.cost);
-            }
-        };
+        Comparator<NodeCost> comparator = (o1, o2) -> Float.compare(o1.cost,o2.cost);
         PriorityQueue<NodeCost> nodes = new PriorityQueue<>(100, comparator);
         Map<String, Boolean> visited = new HashMap<>();
         nodes.add(new NodeCost(Float.POSITIVE_INFINITY, initialState));
@@ -73,19 +68,18 @@ public class EamonnsGodAlgorithm {
             NodeCost nodeCost = nodes.poll();
 
             if(isBacktrackingEnabled) {
-                if (queueFunction.equals(queueFunction.UCS)) {
+                if (queueFunction.equals(QueueFunction.UCS)) {
                     System.out.println("The best state to expand with a g(n) = " + nodeCost.node.getDepth() + " and h(n) = " + 0+ " is .... ");
                 } else
                     System.out.println("The best state to expand with a g(n) = " + nodeCost.node.getDepth() + " and h(n) = " + nodeCost.cost+ " is ....");
-                System.out.println(nodeCost.cost + " " + nodeCost.node.getState().toString());
                 System.out.println("Depth: "+nodeCost.node.getDepth()+ " Node Cost: "+ nodeCost.cost);
                 for(int i=0;i<boardSize;i++)
                 {
                     if(i!=0 && i%(boardEdge)==0)
-                        System.out.println("");
+                        System.out.println();
                     System.out.print(nodeCost.node.getState().get(i)+" ");
                 }
-                System.out.println("");
+                System.out.println();
             }
 
             if(isGoalState(nodeCost.node)) {
@@ -96,14 +90,15 @@ public class EamonnsGodAlgorithm {
                 Node test = nodeCost.node;
                 while(test!=null && isBacktrackingEnabled)
                 {
+                    System.out.println("Backtracking solution from Goal State to Initial State, State at Depth- "+test.getDepth());
                     System.out.println("Depth: "+test.getDepth());
                     for(int i=0;i<boardSize;i++)
                     {
                         if(i!=0 && i%(boardEdge)==0)
-                            System.out.println("");
+                            System.out.println();
                         System.out.print(test.getState().get(i)+" ");
                     }
-                    System.out.println("");
+                    System.out.println();
                      test = test.getParentNode();
                 }
                 return;
@@ -112,9 +107,9 @@ public class EamonnsGodAlgorithm {
             for(Node child: expand(nodeCost.node))
             {
                 if(!visited.containsKey(getListOfNumbersAsString(child.getState()))){
-                    if(queueFunction.equals(queueFunction.UCS))
+                    if(queueFunction.equals(QueueFunction.UCS))
                         nodes.add(new NodeCost(child.getDepth(), child));
-                    else if(queueFunction.equals(queueFunction.AStarMisplaced))
+                    else if(queueFunction.equals(QueueFunction.AStarMisplaced))
                         nodes.add(new NodeCost(child.getDepth() + calculateMisplacedTilesCount(child.getState()), child));
                     else
                         nodes.add(new NodeCost(child.getDepth() + calculateTotalManhattanDistance(child.getState()), child));
@@ -183,8 +178,8 @@ public class EamonnsGodAlgorithm {
         Scanner sc = new Scanner(System.in);
         System.out.println("Welcome to an 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own");
         int choice1 = sc.nextInt();
-        int choice2=-1;
-        int choice3=-1;
+        int choice2;
+        int choice3;
         QueueFunction algoChoice = QueueFunction.AStarManhattan;
         List<Integer>inputPuzzle = new ArrayList<>();
         Map<Integer, List<Integer>> eightPuzzle = new HashMap<>();
